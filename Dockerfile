@@ -34,11 +34,10 @@ RUN uv sync --frozen
 EXPOSE 8000 8010
 
 # 健康检查
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8010/healthz || exit 1
 
-# 启动脚本
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+# 启动命令 - 同时运行两个服务
+CMD sh -c 'echo "Starting Protobuf Bridge Server..." && python server.py & \
+           echo "Waiting for bridge server to start..." && sleep 3 && \
+           echo "Starting OpenAI API Server..." && python openai_compat.py'
