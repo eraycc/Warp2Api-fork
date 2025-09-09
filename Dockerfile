@@ -9,22 +9,27 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     HOST=0.0.0.0 \
     PORT=8010 \
-    BRIDGE_BASE_URL=http://localhost:8000 \
-    PATH="/root/.local/bin:${PATH}"
+    BRIDGE_BASE_URL=http://localhost:8000
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # 复制项目文件
 COPY . .
 
-# 使用 uv 安装依赖
-RUN uv pip install --system -e .
+# 使用 pip 直接安装依赖
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn[standard] \
+    "httpx[http2]" \
+    protobuf \
+    grpcio-tools \
+    python-dotenv \
+    "websockets>=15.0.1" \
+    "requests>=2.32.5" \
+    "openai>=1.106.0"
 
 # 暴露端口
 EXPOSE 8000 8010
