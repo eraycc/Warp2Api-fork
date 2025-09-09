@@ -21,7 +21,7 @@ app.include_router(router)
 async def _on_startup():
     try:
         logger.info("[OpenAI Compat] Server starting. BRIDGE_BASE_URL=%s", BRIDGE_BASE_URL)
-        logger.info("[OpenAI Compat] Endpoints: GET /healthz, POST /v1/chat/completions")
+        logger.info("[OpenAI Compat] Endpoints: GET /healthz, GET /v1/models, POST /v1/chat/completions")
     except Exception:
         pass
 

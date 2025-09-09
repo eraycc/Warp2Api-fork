@@ -37,8 +37,10 @@
    pip install -e .
    ```
 
-3. **配置环境变量:**
-   创建一个包含您的 Warp 凭证的 `.env` 文件:
+3. **配置匿名JWT TOKEN:**
+   这一步可以什么都不做，程序会自行请求匿名JWT TOKEN
+
+   当然你也可以创建一个包含您的 Warp 凭证的 `.env` 文件，用自己的订阅额度，不过这并不推荐:
    ```env
    WARP_JWT=your_jwt_token_here
    WARP_REFRESH_TOKEN=your_refresh_token_here

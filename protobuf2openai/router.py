@@ -35,6 +35,24 @@ def health_check():
     return {"status": "ok", "service": "OpenAI Chat Completions (Warp bridge) - Streaming"}
 
 
+@router.get("/v1/models")
+def list_models():
+    """OpenAI-compatible model listing. Forwards to bridge, with local fallback."""
+    try:
+        resp = requests.get(f"{BRIDGE_BASE_URL}/v1/models", timeout=10.0)
+        if resp.status_code != 200:
+            raise HTTPException(resp.status_code, f"bridge_error: {resp.text}")
+        return resp.json()
+    except Exception as e:
+        try:
+            # Local fallback: construct models directly if bridge is unreachable
+            from warp2protobuf.config.models import get_all_unique_models  # type: ignore
+            models = get_all_unique_models()
+            return {"object": "list", "data": models}
+        except Exception:
+            raise HTTPException(502, f"bridge_unreachable: {e}")
+
+
 @router.post("/v1/chat/completions")
 async def chat_completions(req: ChatCompletionsRequest):
     try:

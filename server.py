@@ -26,6 +26,7 @@ from warp2protobuf.api.protobuf_routes import EncodeRequest, _encode_smd_inplace
 from warp2protobuf.core.protobuf_utils import dict_to_protobuf_bytes
 from warp2protobuf.core.schema_sanitizer import sanitize_mcp_input_schema_in_packet
 from warp2protobuf.core.auth import acquire_anonymous_access_token
+from warp2protobuf.config.models import get_all_unique_models
 
 
 # ============= 工具：input_schema 清理与校验 =============
@@ -262,6 +263,17 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.error(f"❌ AI请求编码失败: {e}")
             raise HTTPException(500, f"编码失败: {str(e)}")
+    
+    # ============= OpenAI 兼容：模型列表接口 =============
+    @app.get("/v1/models")
+    async def list_models():
+        """OpenAI-compatible endpoint that lists available models."""
+        try:
+            models = get_all_unique_models()
+            return {"object": "list", "data": models}
+        except Exception as e:
+            logger.error(f"❌ 获取模型列表失败: {e}")
+            raise HTTPException(500, f"获取模型列表失败: {str(e)}")
     
     return app
 
