@@ -7,28 +7,24 @@ WORKDIR /app
 # 设置环境变量
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
     HOST=0.0.0.0 \
     PORT=8010 \
-    BRIDGE_BASE_URL=http://localhost:8000
+    BRIDGE_BASE_URL=http://localhost:8000 \
+    PATH="/root/.local/bin:${PATH}"
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 uv (高性能 Python 包管理器)
+# 安装 uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 将 uv 添加到 PATH
-ENV PATH="/root/.local/bin:${PATH}"
 
 # 复制项目文件
 COPY . .
 
 # 使用 uv 安装依赖
-RUN uv sync --frozen
+RUN uv pip install --system -e .
 
 # 暴露端口
 EXPOSE 8000 8010
@@ -39,5 +35,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
 
 # 启动命令 - 同时运行两个服务
 CMD sh -c 'echo "Starting Protobuf Bridge Server..." && python server.py & \
-           echo "Waiting for bridge server to start..." && sleep 3 && \
+           echo "Waiting for bridge server to start..." && sleep 5 && \
            echo "Starting OpenAI API Server..." && python openai_compat.py'
